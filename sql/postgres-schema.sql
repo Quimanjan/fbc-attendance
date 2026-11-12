@@ -107,9 +107,9 @@ CREATE TABLE IF NOT EXISTS sessions (
   expire TIMESTAMP(6) NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sessions_expire ON sessions (expire);
--- Supabase exposes the public schema through its web API; this app doesn't use that, so keep it closed.
+-- Supabase exposes tables through its web API; this app doesn't use that, so keep them closed.
 DO $$ DECLARE t text; BEGIN
-  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = current_schema() LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
   END LOOP;
 END $$;

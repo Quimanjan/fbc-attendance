@@ -19,7 +19,10 @@ export const config = {
   tz: str('TZ', 'Asia/Manila'),
   db: {
     // Postgres connection string (Supabase). When set, it is used instead of the MySQL settings below.
-    url: str('DATABASE_URL'),
+    // POSTGRES_URL is what the Supabase integration on Vercel adds by itself.
+    url: str('DATABASE_URL') || str('POSTGRES_URL'),
+    // Optional: keep the app's tables in their own schema (e.g. when sharing a Supabase project).
+    schema: str('DB_SCHEMA'),
     host: str('DB_HOST', 'localhost'),
     port: num('DB_PORT', 3306),
     user: str('DB_USER', 'root'),

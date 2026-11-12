@@ -25,11 +25,25 @@ export const pool: mysql.Pool | null = isPostgres ? null : mysql.createPool({
 // Same plain strings as MySQL for dates and times, and numbers for counts.
 for (const oid of [1082, 1083, 1114, 1184]) pg.types.setTypeParser(oid, v => v);   // date, time, timestamp, timestamptz
 pg.types.setTypeParser(20, v => Number(v));                                        // COUNT(*) is bigint
+// sslmode in the address would make pg demand a publicly signed certificate, which Supabase's isn't; ssl is set below.
+const pgUrl = (() => {
+  if (!isPostgres) return '';
+  const u = new URL(config.db.url);
+  for (const k of ['sslmode', 'supa', 'pgbouncer']) u.searchParams.delete(k);
+  // A schema is set per connection, which Supabase's transaction pooler (port 6543) doesn't keep; use session mode.
+  if (config.db.schema && u.port === '6543') u.port = '5432';
+  return u.toString();
+})();
 export const pgPool: pg.Pool | null = isPostgres ? new pg.Pool({
-  connectionString: config.db.url,
+  connectionString: pgUrl,
   ssl: config.db.ssl ?? (/localhost|127\.0\.0\.1/.test(config.db.url) ? undefined : { rejectUnauthorized: false }),
   max: process.env.VERCEL ? 3 : 10,
 }) : null;
+// DB_SCHEMA: every connection looks for (and creates) the tables in that schema.
+if (pgPool && config.db.schema) {
+  const schema = config.db.schema.replace(/[^a-z0-9_]/gi, '');
+  pgPool.on('connect', c => { c.query(`SET search_path TO "${schema}"`).catch(() => {}); });
+}
 
 /** Rewrites the app's MySQL-style SQL for Postgres. */
 export function toPostgres(sql: string): string {

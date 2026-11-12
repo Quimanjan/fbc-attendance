@@ -131,6 +131,7 @@ const ENUMS: [string, string, string, string][] = [
 export async function migrate(log = console.log) {
   if (pgPool) {
     // Postgres (Supabase): one schema file, written for the current version.
+    if (config.db.schema) await pgPool.query(`CREATE SCHEMA IF NOT EXISTS "${config.db.schema.replace(/[^a-z0-9_]/gi, '')}"`);
     await pgPool.query(fs.readFileSync(path.join(sqlDir, 'postgres-schema.sql'), 'utf8'));
     log('Postgres database is ready.');
     return;

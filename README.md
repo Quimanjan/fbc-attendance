@@ -46,6 +46,8 @@ The app runs on Vercel with its data in a Supabase (Postgres) database. The samp
 
 The camera works on the Vercel address because it is HTTPS, so the kiosk can be opened on any phone or laptop.
 Auto-absent doesn't run on Vercel (there is no always-on server); mark absences in Take Attendance instead.
+If the Supabase project is connected to the Vercel project through Vercel's Supabase integration, `POSTGRES_URL` is added for you and `DATABASE_URL` isn't needed.
+To share a Supabase project with another app, add `DB_SCHEMA=attendance`: the app keeps its tables in that schema.
 Any hosted MySQL works too: leave `DATABASE_URL` out and set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME` and `DB_SSL=true`.
 `npm run export-db` writes the sample data for both databases (`sql/attendance_db.sql` and `sql/postgres-data.sql`).
 
