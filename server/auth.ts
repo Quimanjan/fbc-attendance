@@ -67,10 +67,18 @@ export async function startSession(req: Request, user: { user_id: number; name: 
   };
 }
 
+const googleConfigured = () =>
+  !!config.google.clientId && !!config.google.clientSecret && !config.google.clientId.startsWith('your-');
+
 export function authRoutes(): Router {
   const r = express.Router();
 
+  // Google sign-in only works once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are filled in (.env or Vercel settings).
+  // Without them Google shows "Access blocked", so the login page hides the button.
+  r.get('/options', (_req, res) => { res.json({ google: googleConfigured() }); });
+
   r.get('/google', (req, res) => {
+    if (!googleConfigured()) return res.redirect('/login?error=nogoogle');
     const state = crypto.randomBytes(16).toString('hex');
     req.session.oauthState = state;
     res.redirect(oauth().generateAuthUrl({ scope: ['openid', 'email', 'profile'], state, prompt: 'select_account' }));

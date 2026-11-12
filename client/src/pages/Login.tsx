@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTilt } from '../effects';
 
@@ -6,6 +6,7 @@ const ERRORS: Record<string, string> = {
   google: 'Google sign-in failed. Please try again.',
   state: 'Your sign-in expired. Please try again.',
   email: 'Your Google account email is not verified.',
+  nogoogle: 'Google sign-in is not set up on this copy. Sign in with email and password.',
 };
 
 export default function Login() {
@@ -15,6 +16,9 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [failed, setFailed] = useState('');
   const [busy, setBusy] = useState(false);
+  // Google sign-in shows only when this copy has Google settings; otherwise Google would block it.
+  const [google, setGoogle] = useState(false);
+  useEffect(() => { fetch('/auth/options').then(r => r.json()).then(o => setGoogle(!!o.google)).catch(() => {}); }, []);
   // Teachers given a password by the admin sign in here.
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +43,11 @@ export default function Login() {
         <div className="system-label">Attendance Monitoring System</div>
         <div className="divider">
           <div className="divider-line"></div>
-          <span>Sign in with your school account</span>
+          <span>{google ? 'Sign in with your school account' : 'Sign in with your email and password'}</span>
           <div className="divider-line"></div>
         </div>
         {error && <p className="login-error">{error}</p>}
+        {google && <>
         <a href="/auth/google" className="google-btn">
           <span className="google-icon-wrap">
             <svg className="google-icon" viewBox="0 0 48 48">
@@ -59,6 +64,7 @@ export default function Login() {
           <span>or with email and password</span>
           <div className="divider-line"></div>
         </div>
+        </>}
         <form className="login-form" onSubmit={signIn}>
           <input type="email" autoComplete="username" required placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
           <input type="password" autoComplete="current-password" required placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
@@ -66,8 +72,8 @@ export default function Login() {
           <button className="btn btn-primary" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
         </form>
         <p className="info-note">
-          Use your <strong>school Gmail account</strong>, or the email and password<br />
-          your school admin gave you.
+          {google ? <>Use your <strong>school Gmail account</strong>, or the email and password<br />your school admin gave you.</>
+            : <>Use the email and password your school admin gave you.<br />Demo copy: <strong>admin@fbc.local</strong> / <strong>fbcdemo2026</strong></>}
         </p>
         <div className="card-footer">&copy; {new Date().getFullYear()} Fellowship Baptist College &mdash; All rights reserved.</div>
       </div>
