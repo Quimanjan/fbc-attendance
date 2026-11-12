@@ -1,0 +1,81 @@
+/* =============================================
+   MAROON-DOMINANT FINISHING TOUCHES
+   neu.css sets the maroon base and gold accent; this fixes the spots that
+   need different text or backgrounds on maroon. Loaded last.
+   ============================================= */
+body, .landing, .login-page { color: var(--ink); }
+a { color: var(--accent); }
+::placeholder { color: rgba(246, 217, 210, .55); }
+option { color: #2a0004; background: #fff; }
+input, select, textarea { color: var(--ink) !important; }
+input[type="date"], input[type="month"], input[type="time"] { color-scheme: dark; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* Text on gold */
+.btn-primary, .btn-primary:hover, .l-btn, .l-btn:hover,
+.action-card.primary, .nav-link.active .nav-ico,
+.tab.active .tab-step, .stepper li.current .stepper-dot,
+.check-row .btn-primary { color: var(--accent-ink); }
+.action-card.primary .action-sub, .action-card.primary > svg { color: rgba(61, 2, 7, .75); }
+.action-card.primary .action-ico { color: var(--accent-ink); box-shadow: inset 3px 3px 7px rgba(120, 70, 0, .35), inset -3px -3px 7px rgba(255, 255, 255, .35); }
+.btn-primary { box-shadow: 5px 5px 12px var(--neu-dark), -4px -4px 10px var(--neu-light); }
+.btn-primary:hover { box-shadow: 7px 7px 16px var(--neu-dark), -5px -5px 12px var(--neu-light); }
+.l-btn { box-shadow: 8px 8px 18px var(--neu-dark), -6px -6px 16px var(--neu-light); }
+.l-btn:hover { box-shadow: 12px 12px 24px var(--neu-dark), -8px -8px 20px var(--neu-light); }
+.l-btn-ghost { color: var(--ink); }
+.l-btn-ghost:hover { color: var(--accent); }
+.l-btn-light { background: var(--neu-bg); color: var(--accent); box-shadow: 8px 8px 18px rgba(0, 0, 0, .35), -6px -6px 14px rgba(196, 64, 70, .3); }
+.l-btn-light:hover { color: var(--accent); }
+.btn-ghost-danger { color: #ffb4b4; }
+.btn-danger, .btn-ghost-danger:hover { background: linear-gradient(135deg, #ff6b6b, #d32f2f); color: #fff; }
+
+/* Status colors that read on maroon */
+.badge-present { background: #bbf7d0; color: #14532d; }
+.badge-absent  { background: #fecaca; color: #7f1d1d; }
+.badge-late    { background: #fde68a; color: #78350f; }
+.badge-excused { background: #bfdbfe; color: #1e3a8a; }
+.status-btn { color: var(--ink-soft); }
+.alert { background: #bbf7d0; color: #14532d; }
+.alert-error { background: #fecaca; color: #7f1d1d; }
+.alert-info { background: rgba(255, 255, 255, .12); color: var(--ink); }
+.notice { color: var(--ink-soft); }
+.login-error { color: #ffb4b4; }
+.dots span.on { background: #4ade80; }
+
+/* Surfaces that were light */
+.sidebar { box-shadow: 8px 0 22px rgba(30, 0, 3, .45); }
+.s-logo, .l-logo, .logo-circle { background: #fff; }
+.date-row:hover, tbody tr:hover { background: transparent; }
+.scanner-screen { background: rgba(0, 0, 0, .12); }
+.scan-face { color: var(--accent); }
+.corner { border-color: var(--accent); }
+.scan-grid { background-image: linear-gradient(rgba(242, 193, 78, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(242, 193, 78, .08) 1px, transparent 1px); }
+.orbit { border-color: rgba(242, 193, 78, .22); }
+.spotlight { background: radial-gradient(520px circle at var(--cx, 70%) var(--cy, 30%), rgba(242, 193, 78, .13), transparent 60%); }
+.rot-word, .system-label { background-image: linear-gradient(90deg, #f2c14e, #fff1c9, #f2c14e); }
+.num-val { background-image: linear-gradient(135deg, #fff1c9, #f2c14e); }
+.blob-a { background: rgba(255, 90, 90, .25); }
+.blob-b { background: rgba(242, 193, 78, .28); }
+.logo-ring::after { border-right-color: rgba(255, 255, 255, .5); }
+.login-card::before { background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(255, 200, 200, .14), transparent 45%); }
+.feat-inner::before { background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(242, 193, 78, .14), transparent 50%); }
+.dash-hero::after { background: radial-gradient(circle, rgba(242, 193, 78, .22), transparent 70%); }
+
+/* Deep maroon panels for contrast */
+.cta-band { background: var(--deep-grad); box-shadow: 14px 14px 34px var(--neu-dark), -10px -10px 26px var(--neu-light); }
+.cta-band h2 { color: var(--ink); }
+.modal-backdrop { background: rgba(30, 0, 3, .55); }
+.modal { box-shadow: 0 30px 80px rgba(0, 0, 0, .5), var(--neu-raised); }
+.chip button { color: #ffb4b4; }
+.chip button:hover { background: #d32f2f; color: #fff; }
+.pose-arrow { background: rgba(242, 193, 78, .8); color: var(--accent-ink); }
+
+/* Kiosk: deep maroon instead of navy */
+.kiosk { background: radial-gradient(circle at 50% 0%, #6b0c12 0%, #3a0306 70%); }
+.k-clock { color: #e6b3ad; }
+.k-exit { background: #3a0306; box-shadow: 5px 5px 12px #1f0103, -5px -5px 12px #55070d; }
+.k-exit:active { box-shadow: inset 4px 4px 9px #1f0103, inset -4px -4px 9px #55070d; }
+
+.scan-toast.ok b { color: #86efac; }
+.scan-toast.late b { color: #fcd34d; }
+.sum-pill { filter: saturate(1.1); }
