@@ -3,7 +3,7 @@ import express from 'express';
 import crypto from 'node:crypto';
 import { requireKiosk, requireStaff, startSession } from '../auth.js';
 import { config } from '../config.js';
-import { exec, nowTime, one, pool, query, today } from '../db.js';
+import { exec, nowTime, one, query, today, transaction } from '../db.js';
 import { FACE_MODEL, faceDistance, formatTime, matchFace, packEmbedding, parseEmbedding, statusForCheckin } from '../face.js';
 import { notifyParents } from '../mailer.js';
 import { checkIn } from '../classroom.js';
@@ -50,16 +50,13 @@ faceRoutes.post('/students/:id/face', h(async (req, res) => {
     }
   }
 
-  const conn = await pool.getConnection();
-  try {
-    await conn.beginTransaction();
-    await conn.query('DELETE FROM student_faces WHERE student_id=?', [id]);
+  await transaction(async run => {
+    await run('DELETE FROM student_faces WHERE student_id=?', [id]);
     for (const s of samples) {
-      await conn.query('INSERT INTO student_faces (student_id, embedding, model, enrolled_by) VALUES (?, ?, ?, ?)',
+      await run('INSERT INTO student_faces (student_id, embedding, model, enrolled_by) VALUES (?, ?, ?, ?)',
         [id, packEmbedding(s), FACE_MODEL, req.session.user!.user_id]);
     }
-    await conn.commit();
-  } catch (e) { await conn.rollback(); throw e; } finally { conn.release(); }
+  });
   res.json({ ok: true, count: samples.length });
 }));
 

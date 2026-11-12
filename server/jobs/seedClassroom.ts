@@ -3,7 +3,7 @@
 //   npm run seed:classroom              add the mock classroom (skipped if it already exists)
 //   npm run seed:classroom -- --reset   remove the mock data and add it again
 // Mock people use @mock.fbc.local emails and MOCK- student numbers and have no parent email, so no one is emailed.
-import { exec, one, pool, query } from '../db.js';
+import { endPool, exec, one, query } from '../db.js';
 import { migrate } from '../migrate.js';
 import { DAYS } from '../util.js';
 
@@ -32,9 +32,9 @@ const yearNo = (y: string) => y[0];
 async function removeMock() {
   // Their schedules and check-ins go with the classes.
   await exec("DELETE FROM students WHERE student_no LIKE 'MOCK-%'");
-  const mock = "JOIN classes c ON s.class_id = c.class_id JOIN teachers t ON c.teacher_id = t.teacher_id WHERE t.email LIKE '%@mock.fbc.local'";
-  await exec(`DELETE s FROM sections s ${mock}`);
-  await exec("DELETE c FROM classes c JOIN teachers t ON c.teacher_id = t.teacher_id WHERE t.email LIKE '%@mock.fbc.local'");
+  const mockClasses = "SELECT c.class_id FROM classes c JOIN teachers t ON c.teacher_id = t.teacher_id WHERE t.email LIKE '%@mock.fbc.local'";
+  await exec(`DELETE FROM sections WHERE class_id IN (${mockClasses})`);
+  await exec(`DELETE FROM classes WHERE class_id IN (${mockClasses})`);
   await exec("DELETE FROM teachers WHERE email LIKE '%@mock.fbc.local'");
 }
 
@@ -79,5 +79,5 @@ export async function seedClassroom(reset = false, log = console.log) {
 if (process.argv[1]?.match(/seedClassroom\.(js|ts)$/)) {
   seedClassroom(process.argv.includes('--reset'))
     .catch(e => { console.error('Seeding failed:', e.message); process.exitCode = 1; })
-    .finally(() => pool.end());
+    .finally(() => endPool());
 }

@@ -1,8 +1,14 @@
 // Creates or upgrades the database. Safe to run any number of times:
 //   npm run migrate
 // Works on a fresh install and on the database from the old PHP version (data is kept).
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import mysql from 'mysql2/promise';
 import { config } from './config.js';
+import { pgPool } from './db.js';
+
+const sqlDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'sql');   // from dist/server/
 
 const TABLES: Record<string, string> = {
   users: `CREATE TABLE IF NOT EXISTS users (
@@ -123,7 +129,13 @@ const ENUMS: [string, string, string, string][] = [
 ];
 
 export async function migrate(log = console.log) {
-  const { database, ...conn } = config.db;
+  if (pgPool) {
+    // Postgres (Supabase): one schema file, written for the current version.
+    await pgPool.query(fs.readFileSync(path.join(sqlDir, 'postgres-schema.sql'), 'utf8'));
+    log('Postgres database is ready.');
+    return;
+  }
+  const { database, url: _url, ...conn } = config.db;
   const c = await mysql.createConnection(conn);
   await c.query(`CREATE DATABASE IF NOT EXISTS \`${database}\``);
   await c.query(`USE \`${database}\``);

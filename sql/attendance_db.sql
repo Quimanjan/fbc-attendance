@@ -1,4 +1,4 @@
--- FBC Attendance: shareable copy of "attendance_db", made 2026-11-12T00:19:10.714Z by npm run export-db.
+-- FBC Attendance: shareable copy of "attendance_db", made 2026-11-12T00:45:36.385Z by npm run export-db.
 -- Load it with: npm run import-db   (setup.bat does this). Demo login: admin@fbc.local / fbcdemo2026
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
@@ -430,6 +430,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 INSERT INTO `users` (`user_id`, `name`, `email`, `picture`, `role`, `created_at`, `password_hash`) VALUES
-(1, 'Demo Admin', 'admin@fbc.local', NULL, 'admin', '2026-10-19 22:39:05', 'scrypt:f0e806c2547fafccccda734cb00aa004:27eccee3745d470d364615efc4bfe3f00b84876c75e6952567c2d4e861c513c565b0a05068a5f582d99462fb2e1f59be71fcccc8439f174517e9f882f7014724');
+(1, 'Demo Admin', 'admin@fbc.local', NULL, 'admin', '2026-10-19 22:39:05', 'scrypt:0e946104ca5e4f1b55625967a7289a3d:d9133624f7e1e304807d6484ae38c7c96f761a29f5129859a10f594093a5e66b0729e40aeee15f7f5618a9a7bc85de40c608043c0cfbcb0056a3ca77295f0cc8');
 
 SET FOREIGN_KEY_CHECKS=1;

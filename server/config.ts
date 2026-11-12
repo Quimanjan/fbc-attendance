@@ -18,13 +18,15 @@ export const config = {
   sessionSecret: str('SESSION_SECRET', 'change-me'),
   tz: str('TZ', 'Asia/Manila'),
   db: {
+    // Postgres connection string (Supabase). When set, it is used instead of the MySQL settings below.
+    url: str('DATABASE_URL'),
     host: str('DB_HOST', 'localhost'),
     port: num('DB_PORT', 3306),
     user: str('DB_USER', 'root'),
     password: str('DB_PASS', ''),
     database: str('DB_NAME', 'attendance_db'),
     // Hosted MySQL (TiDB Cloud, Aiven, PlanetScale...) needs an encrypted connection: DB_SSL=true.
-    ssl: bool('DB_SSL', false) ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } : undefined,
+    ssl: bool('DB_SSL', false) ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } as { minVersion?: 'TLSv1.2'; rejectUnauthorized: boolean } : undefined,
   },
   google: {
     clientId: str('GOOGLE_CLIENT_ID'),

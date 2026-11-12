@@ -6,7 +6,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
-import { pool } from './db.js';
+import PgStoreFactory from 'connect-pg-simple';
+import { pgPool, pool } from './db.js';
 import { authRoutes, requireStaff } from './auth.js';
 import { migrate } from './migrate.js';
 import records from './routes/records.js';
@@ -21,11 +22,14 @@ export function createApp(extra?: (app: express.Express) => void) {
   app.disable('x-powered-by');
   app.use(express.json({ limit: '200kb' }));
 
-  const MySQLStore = MySQLStoreFactory(session as any);
+  // Logins are kept in the database, so they survive a restart (and work across Vercel's servers).
+  const store = pgPool
+    ? new (PgStoreFactory(session))({ pool: pgPool, tableName: 'sessions' })
+    : new (MySQLStoreFactory(session as any))({ createDatabaseTable: true }, pool as any);
   app.use(session({
     name: 'fbc.sid',
     secret: config.sessionSecret,
-    store: new MySQLStore({ createDatabaseTable: true }, pool as any),
+    store,
     resave: false,
     saveUninitialized: false,
     rolling: true,

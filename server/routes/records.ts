@@ -94,9 +94,10 @@ r.put('/teachers/:id/account', h(async (req, res) => {
   if (!t) throw new HttpError(404, 'Teacher not found.');
   const password = String(req.body?.password ?? '');
   if (password.length < 8) throw new HttpError(400, 'Use at least 8 characters for the password.');
-  await exec(`INSERT INTO users (name, email, role, password_hash) VALUES (?, ?, 'teacher', ?)
-              ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash)`,
-    [`${t.first_name} ${t.last_name}`, t.email, hashPassword(password)]);
+  const hash = hashPassword(password);
+  const r = await exec('UPDATE users SET password_hash=? WHERE email=?', [hash, t.email]);
+  if (!r.affectedRows) await exec(`INSERT INTO users (name, email, role, password_hash) VALUES (?, ?, 'teacher', ?)`,
+    [`${t.first_name} ${t.last_name}`, t.email, hash]);
   res.json({ ok: true });
 }));
 r.delete('/teachers/:id/account', h(async (req, res) => {
@@ -119,7 +120,7 @@ r.get('/classes', h(async (_req, res) => {
     query(`SELECT sc.*, c.class_name, c.subject, s.section_name
            FROM schedules sc JOIN classes c ON sc.class_id = c.class_id
            LEFT JOIN sections s ON sc.section_id = s.section_id
-           ORDER BY FIELD(sc.day_of_week, ${DAYS.map(() => '?').join(',')}), sc.time_start`, DAYS),
+           ORDER BY CASE sc.day_of_week ${DAYS.map((_, i) => `WHEN ? THEN ${i}`).join(' ')} END, sc.time_start`, DAYS),
   ]);
   res.json({ classes, sections, schedules });
 }));

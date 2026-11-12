@@ -4,7 +4,7 @@
 //   npm run auto-absent -- --dry-run
 //   npm run auto-absent -- --date=2026-10-15
 import { config } from '../config.js';
-import { exec, isDate, one, pool, query, today, weekday } from '../db.js';
+import { endPool, exec, isDate, one, query, today, weekday } from '../db.js';
 import { lateDeadline, toMinutes } from '../face.js';
 import { notifyParents } from '../mailer.js';
 
@@ -46,6 +46,6 @@ if (process.argv[1]?.match(/autoAbsent\.(js|ts)$/)) {
   const date = arg('date')?.split('=')[1] ?? today();
   if (!isDate(date)) { console.error('Invalid --date, use YYYY-MM-DD.'); process.exit(1); }
   runAutoAbsent(date, !!arg('dry-run'))
-    .then(() => pool.end())
+    .then(() => endPool())
     .catch(e => { console.error(e); process.exit(1); });
 }

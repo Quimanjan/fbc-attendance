@@ -8,8 +8,8 @@ import { h, HttpError, int, STATUSES } from '../util.js';
 const r = express.Router();
 
 const COUNTS = `
-  SUM(a.status='Present') AS present_count, SUM(a.status='Absent') AS absent_count,
-  SUM(a.status='Late') AS late_count, SUM(a.status='Excused') AS excused_count, COUNT(*) AS total`;
+  SUM(CASE WHEN a.status='Present' THEN 1 ELSE 0 END) AS present_count, SUM(CASE WHEN a.status='Absent' THEN 1 ELSE 0 END) AS absent_count,
+  SUM(CASE WHEN a.status='Late' THEN 1 ELSE 0 END) AS late_count, SUM(CASE WHEN a.status='Excused' THEN 1 ELSE 0 END) AS excused_count, COUNT(*) AS total`;
 
 r.get('/dashboard', h(async (_req, res) => {
   const d = today();
@@ -114,13 +114,15 @@ r.delete('/attendance/:id', h(async (req, res) => {
 r.get('/reports', h(async (req, res) => {
   const month = /^\d{4}-\d{2}$/.test(String(req.query.month)) ? String(req.query.month) : today().slice(0, 7);
   const sectionId = int(req.query.section_id);
-  const where = `WHERE DATE_FORMAT(a.date, '%Y-%m') = ?` + (sectionId ? ' AND s.section_id = ?' : '');
-  const params = sectionId ? [month, sectionId] : [month];
+  const [y, m] = month.split('-').map(Number);
+  const next = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`;
+  const where = 'WHERE a.date >= ? AND a.date < ?' + (sectionId ? ' AND s.section_id = ?' : '');
+  const params = sectionId ? [`${month}-01`, next, sectionId] : [`${month}-01`, next];
   const [rows, totals] = await Promise.all([
     query(`SELECT s.student_id, s.student_no, CONCAT(s.last_name, ', ', s.first_name) AS student_name, sec.section_name, ${COUNTS}
            FROM attendance a JOIN students s ON a.student_id = s.student_id
            LEFT JOIN sections sec ON s.section_id = sec.section_id
-           ${where} GROUP BY s.student_id ORDER BY s.last_name`, params),
+           ${where} GROUP BY s.student_id, s.student_no, s.last_name, s.first_name, sec.section_name ORDER BY s.last_name`, params),
     one(`SELECT ${COUNTS} FROM attendance a JOIN students s ON a.student_id = s.student_id ${where}`, params),
   ]);
   res.json({ month, section_id: sectionId, rows, totals });
