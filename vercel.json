@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/client",
+  "functions": {
+    "api/index.js": { "includeFiles": "{sql/attendance_db.sql,dist/server/**}", "maxDuration": 30 }
+  },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index?__url=/api/:path*" },
+    { "source": "/auth/:path*", "destination": "/api/index?__url=/auth/:path*" },
+    { "source": "/((?!assets/|models/|wasm/|fbc_logo\\.png).*)", "destination": "/index.html" }
+  ]
+}

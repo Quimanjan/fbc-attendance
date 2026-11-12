@@ -23,6 +23,8 @@ export const config = {
     user: str('DB_USER', 'root'),
     password: str('DB_PASS', ''),
     database: str('DB_NAME', 'attendance_db'),
+    // Hosted MySQL (TiDB Cloud, Aiven, PlanetScale...) needs an encrypted connection: DB_SSL=true.
+    ssl: bool('DB_SSL', false) ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } : undefined,
   },
   google: {
     clientId: str('GOOGLE_CLIENT_ID'),

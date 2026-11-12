@@ -25,6 +25,32 @@ you fill in the Google and Gmail settings in `.env`; set `MAIL_ENABLED=false` to
 If an `attendance_db` with students already exists, setup keeps it; `npm run import-db -- --force` replaces it with the sample data.
 To share your own data the same way, run `npm run build` then `npm run export-db` (it leaves out face data, sessions and real emails).
 
+## Put it online (Vercel)
+
+The app runs on Vercel with a free hosted MySQL database. The sample data loads by itself on the first visit.
+
+1. **Database:** sign up at https://tidbcloud.com (free, MySQL-compatible) and create a **Starter/Serverless** cluster.
+   Press **Connect** and note the host, port (4000), user and password.
+2. **Vercel:** at https://vercel.com/new import this GitHub repo. Leave the build settings as they are.
+3. Before pressing Deploy, open **Environment Variables** and add:
+
+   | Name | Value |
+   |---|---|
+   | `DB_HOST` | host from TiDB (e.g. `gateway01.ap-southeast-1.prod.aws.tidbcloud.com`) |
+   | `DB_PORT` | `4000` |
+   | `DB_USER` | user from TiDB (e.g. `abc123.root`) |
+   | `DB_PASS` | password from TiDB |
+   | `DB_NAME` | `attendance_db` |
+   | `DB_SSL` | `true` |
+   | `SESSION_SECRET` | any long random text |
+   | `MAIL_ENABLED` | `false` |
+
+4. Press **Deploy**, open the site, and sign in with **admin@fbc.local** / **fbcdemo2026**.
+   The first page load takes a few seconds while the database is set up.
+
+The camera works on the Vercel address because it is HTTPS, so the kiosk can be opened on any phone or laptop.
+Auto-absent doesn't run on Vercel (there is no always-on server); mark absences in Take Attendance instead.
+
 ## First-time setup (Windows)
 
 1. Open this folder in a terminal (`C:\xampp\htdocs\attendance_system`): in File Explorer type `cmd` in the address bar and press Enter.

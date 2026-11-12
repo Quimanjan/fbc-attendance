@@ -71,7 +71,7 @@ function scheduleAutoAbsent() {
   console.log(`Auto-absent runs daily at ${config.face.autoAbsentTime} (${config.tz}).`);
 }
 
-if (process.argv[1]?.match(/index\.(js|ts)$/)) {
+if (process.argv[1]?.match(/index\.(js|ts)$/) && !process.env.VERCEL) {
   await migrate(() => {});
   createApp().listen(config.port, () => {
     console.log(`FBC Attendance is running at ${config.appUrl}`);
