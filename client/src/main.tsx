@@ -24,9 +24,11 @@ import Kiosk from './pages/Kiosk';
 // The 3D classroom is large, so it loads only when opened.
 const Classroom = lazy(() => import('./pages/Classroom'));
 const QrCards = lazy(() => import('./pages/QrCards'));
+const StudentProfile = lazy(() => import('./pages/Profile'));
+import './profile.css';
 import './classroom.css';
 
-type Me = { user: User | null; kiosk: boolean };
+type Me = { user: User | null; kiosk: boolean; student?: { student_id: number; name: string } | null };
 
 function App() {
   const [me, setMe] = useState<Me | null>(null);
@@ -36,6 +38,8 @@ function App() {
 
   // A kiosk device can only show the check-in screen.
   if (me.kiosk) return <Kiosk />;
+  // A signed-in student only has their own profile.
+  if (me.student) return location.pathname === '/' ? <Suspense fallback={null}><StudentProfile /></Suspense> : <Navigate to="/" replace />;
   if (location.pathname === '/login') return me.user ? <Navigate to="/" replace /> : <Login />;
   // Signed-out visitors see the landing page; every other path sends them there.
   if (!me.user) return location.pathname === '/' ? <Landing signedIn={false} /> : <Navigate to="/" replace />;

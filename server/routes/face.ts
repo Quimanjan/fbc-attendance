@@ -65,7 +65,7 @@ faceRoutes.post('/students/:id/face', h(async (req, res) => {
 const QR_PREFIX = 'FBC1-';
 const newToken = () => QR_PREFIX + crypto.randomBytes(18).toString('base64url');
 
-async function qrFor(studentId: number, renew = false) {
+export async function qrFor(studentId: number, renew = false) {
   const s = await one('SELECT qr_token FROM students WHERE student_id=?', [studentId]);
   if (!s) throw new HttpError(404, 'Student not found.');
   if (s.qr_token && !renew) return s.qr_token as string;

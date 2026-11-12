@@ -1,0 +1,37 @@
+/* Student profile: a single page, no staff menu. */
+.profile-page { flex: 1; width: 100%; min-height: 100vh; background: var(--neu-bg); color: var(--ink); }
+.profile-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; position: sticky; top: 0; z-index: 5;
+  background: var(--glass); backdrop-filter: blur(8px); box-shadow: 0 6px 18px rgba(30, 0, 3, .35); }
+.profile-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--accent); }
+.profile-brand img { width: 36px; height: 36px; }
+.profile-brand small { color: var(--ink-soft); font-weight: 500; }
+.profile-main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+.profile-main .card { margin: 0; }
+.profile-id { display: flex; gap: 20px; align-items: flex-start; }
+.profile-id > div:last-child { flex: 1; min-width: 0; }
+.profile-id h1 { margin: 0 0 4px; font-size: 22px; color: var(--accent); }
+.profile-avatar { flex: none; width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; box-shadow: var(--neu-inset); color: var(--accent); }
+.profile-avatar svg { width: 34px; height: 34px; }
+.profile-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 24px; margin: 14px 0 0; }
+.profile-facts dt { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.profile-facts dd { margin: 2px 0 0; font-weight: 600; }
+.profile-grid { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 20px; align-items: start; }
+.profile-qr { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.profile-qr .qr-card { width: 100%; max-width: 260px; box-sizing: border-box; }
+.profile-qr p { margin: 0; font-size: 13px; }
+.profile-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.profile-total { border-radius: 12px; padding: 10px; text-align: center; display: flex; flex-direction: column; }
+.profile-total strong { font-size: 24px; line-height: 1.1; }
+.profile-total span { font-size: 12px; }
+.profile-table { width: 100%; }
+.profile-table td, .profile-table th { padding: 8px 6px; }
+@media (max-width: 760px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .profile-id { flex-direction: column; align-items: center; text-align: center; }
+  .profile-totals { grid-template-columns: repeat(2, 1fr); }
+  .profile-table td:last-child, .profile-table th:last-child { display: none; }
+}
+/* Login: staff / student switch. */
+.login-switch { display: flex; gap: 6px; padding: 4px; border-radius: 999px; margin: 0 auto 14px; width: fit-content; box-shadow: var(--neu-inset-sm); }
+.login-switch button { border: 0; background: none; color: inherit; padding: 7px 16px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; opacity: .75; }
+.login-switch button.active { background: var(--maroon-grad); color: var(--accent-ink); opacity: 1; }

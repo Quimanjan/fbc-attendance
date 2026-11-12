@@ -120,6 +120,8 @@ const COLUMNS: [string, string, string][] = [
   ['attendance', 'confidence', 'DECIMAL(4,3) NULL'],
   // QR code sign-in: a random code per student, printed on their card.
   ['students', 'qr_token', 'VARCHAR(40) NULL UNIQUE'],
+  // Student sign-in to their own profile (password set by staff on Edit Student).
+  ['students', 'password_hash', 'VARCHAR(200) NULL'],
 ];
 
 // Choice lists that gained a value: [table, column, new definition, value that must be allowed].

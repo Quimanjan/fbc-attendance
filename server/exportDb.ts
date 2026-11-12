@@ -30,6 +30,7 @@ type Row = Record<string, any>;
 
 function clean(table: string, row: Row, demoAdminId: number | undefined): Row {
   if (table === 'students' && row.parent_email && !/@mock\.fbc\.local$/i.test(row.parent_email)) row.parent_email = null;
+  if (table === 'students' && 'password_hash' in row) row.password_hash = null;   // student passwords stay private
   if (table === 'teachers' && row.email && !/@mock\.fbc\.local$/i.test(row.email)) row.email = `teacher${row.teacher_id}@fbc.local`;
   if (table === 'users') {
     const demo = row.user_id === demoAdminId;

@@ -8,12 +8,13 @@ import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import PgStoreFactory from 'connect-pg-simple';
 import { pgPool, pool } from './db.js';
-import { authRoutes, requireStaff } from './auth.js';
+import { authRoutes, requireStaff, requireStudent } from './auth.js';
 import { migrate } from './migrate.js';
 import records from './routes/records.js';
 import attendance from './routes/attendance.js';
 import { faceRoutes, kioskRoutes } from './routes/face.js';
 import classroom from './routes/classroom.js';
+import { studentAccountRoutes, studentRoutes } from './routes/profile.js';
 import { runAutoAbsent } from './jobs/autoAbsent.js';
 import { HttpError } from './util.js';
 
@@ -39,14 +40,17 @@ export function createApp(extra?: (app: express.Express) => void) {
   extra?.(app);
 
   app.get('/api/me', (req, res) => {
-    res.json({ user: req.session.user ?? null, kiosk: !!req.session.kiosk });
+    res.json({ user: req.session.user ?? null, kiosk: !!req.session.kiosk, student: req.session.student ?? null });
   });
   app.use('/auth', authRoutes());
   app.use('/api/kiosk', kioskRoutes);
+  // Before the staff routes below, which turn away anyone who isn't staff.
+  app.use('/api/student', requireStudent, studentRoutes);
   app.use('/api', faceRoutes);
   app.use('/api', requireStaff, records);
   app.use('/api', requireStaff, attendance);
   app.use('/api', requireStaff, classroom);
+  app.use('/api', requireStaff, studentAccountRoutes);
   app.use('/api', (_req, res) => { res.status(404).json({ error: 'Not found' }); });
 
   // The built React app.

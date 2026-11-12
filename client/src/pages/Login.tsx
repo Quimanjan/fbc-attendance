@@ -12,6 +12,9 @@ const ERRORS: Record<string, string> = {
 export default function Login() {
   const error = ERRORS[new URLSearchParams(window.location.search).get('error') ?? ''];
   const tilt = useTilt<HTMLDivElement>(6);
+  // Staff sign in with email; students with their student ID, to see their profile and QR code.
+  const [mode, setMode] = useState<'staff' | 'student'>(new URLSearchParams(window.location.search).get('as') === 'student' ? 'student' : 'staff');
+  const [studentNo, setStudentNo] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [failed, setFailed] = useState('');
@@ -23,7 +26,8 @@ export default function Login() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true); setFailed('');
-    const res = await fetch('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
+    const [url, body] = mode === 'student' ? ['/auth/student-login', { student_no: studentNo, password }] : ['/auth/login', { email, password }];
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .catch(() => null);
     if (res?.ok) { window.location.href = '/'; return; }
     setFailed((await res?.json().catch(() => null))?.error ?? 'Could not sign in. Please try again.');
@@ -41,6 +45,24 @@ export default function Login() {
         </div>
         <div className="school-name">Fellowship Baptist College</div>
         <div className="system-label">Attendance Monitoring System</div>
+        <div className="login-switch" role="tablist">
+          <button type="button" role="tab" aria-selected={mode === 'staff'} className={mode === 'staff' ? 'active' : ''} onClick={() => { setMode('staff'); setFailed(''); }}>Teacher / Admin</button>
+          <button type="button" role="tab" aria-selected={mode === 'student'} className={mode === 'student' ? 'active' : ''} onClick={() => { setMode('student'); setFailed(''); }}>Student</button>
+        </div>
+        {mode === 'student' ? <>
+        <div className="divider">
+          <div className="divider-line"></div>
+          <span>Sign in with your student ID</span>
+          <div className="divider-line"></div>
+        </div>
+        <form className="login-form" onSubmit={signIn}>
+          <input autoComplete="username" required placeholder="Student ID" value={studentNo} onChange={e => setStudentNo(e.target.value)} />
+          <input type="password" autoComplete="current-password" required placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+          {failed && <p className="login-error">{failed}</p>}
+          <button className="btn btn-primary" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
+        </form>
+        <p className="info-note">See your attendance and download your QR code.<br />No password yet? Ask your teacher or the school admin.</p>
+        </> : <>
         <div className="divider">
           <div className="divider-line"></div>
           <span>{google ? 'Sign in with your school account' : 'Sign in with your email and password'}</span>
@@ -75,6 +97,7 @@ export default function Login() {
           {google ? <>Use your <strong>school Gmail account</strong>, or the email and password<br />your school admin gave you.</>
             : <>Use the email and password your school admin gave you.<br />Demo copy: <strong>admin@fbc.local</strong> / <strong>fbcdemo2026</strong></>}
         </p>
+        </>}
         <div className="card-footer">&copy; {new Date().getFullYear()} Fellowship Baptist College &mdash; All rights reserved.</div>
       </div>
     </div>

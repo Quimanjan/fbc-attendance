@@ -100,6 +100,8 @@ CREATE TABLE IF NOT EXISTS student_faces (
   enrolled_by INT REFERENCES users(user_id) ON DELETE SET NULL,
   created_at TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- Student sign-in to their own profile (password set by staff on Edit Student).
+ALTER TABLE students ADD COLUMN IF NOT EXISTS password_hash VARCHAR(200);
 -- Logins (connect-pg-simple).
 CREATE TABLE IF NOT EXISTS sessions (
   sid VARCHAR NOT NULL PRIMARY KEY,

@@ -19,6 +19,8 @@ declare module 'express-session' {
   interface SessionData {
     user?: SessionUser;
     kiosk?: { startedBy: number; room?: string; startedAt?: number };
+    // A student signed in to see their own profile and QR code. Never mixed with a staff login.
+    student?: { student_id: number; name: string };
     oauthState?: string;
   }
 }
@@ -47,7 +49,7 @@ export function hashPassword(password: string) {
   const salt = crypto.randomBytes(16);
   return `scrypt:${salt.toString('hex')}:${crypto.scryptSync(password, salt, 64).toString('hex')}`;
 }
-function checkPassword(password: string, stored: string | null) {
+export function checkPassword(password: string, stored: string | null) {
   const [kind, salt, hash] = (stored ?? '').split(':');
   if (kind !== 'scrypt' || !salt || !hash) return false;
   const got = crypto.scryptSync(password, Buffer.from(salt, 'hex'), 64);
@@ -116,12 +118,36 @@ export function authRoutes(): Router {
     res.json({ ok: true });
   }));
 
+  // Students sign in with their student number and the password a teacher or admin set on Edit Student.
+  r.post('/student-login', h(async (req, res) => {
+    const studentNo = text(req.body?.student_no, 30);
+    const password = String(req.body?.password ?? '');
+    const key = 'student:' + studentNo.toLowerCase();
+    const f = failures.get(key);
+    if (f && f.until > Date.now()) throw new HttpError(429, 'Too many wrong tries. Wait a few minutes and try again.');
+    const stu = studentNo ? await one('SELECT student_id, first_name, last_name, password_hash FROM students WHERE student_no=?', [studentNo]) : null;
+    if (!stu || !checkPassword(password, stu.password_hash)) {
+      const count = (f?.until && f.until <= Date.now() ? 0 : f?.count ?? 0) + 1;
+      failures.set(key, { count, until: count >= 5 ? Date.now() + 5 * 60 * 1000 : 0 });
+      throw new HttpError(401, 'Wrong student ID or password.');
+    }
+    failures.delete(key);
+    await new Promise<void>((ok, fail) => req.session.regenerate(e => (e ? fail(e) : ok())));
+    req.session.student = { student_id: stu.student_id, name: `${stu.first_name} ${stu.last_name}` };
+    res.json({ ok: true });
+  }));
+
   r.post('/logout', (req, res) => { req.session.destroy(() => res.json({ ok: true })); });
   return r;
 }
 
 export function requireStaff(req: Request, res: Response, next: NextFunction) {
   if (!req.session.user) return res.status(401).json({ error: 'Please sign in.' });
+  next();
+}
+
+export function requireStudent(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.student) return res.status(401).json({ error: 'Please sign in.' });
   next();
 }
 
